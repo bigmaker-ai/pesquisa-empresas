@@ -1,0 +1,833 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b5d46">
+<title>Pesquisa Empresas</title>
+<link rel="icon" href="data:,">
+<style>
+:root{
+  color-scheme:light;
+  --bg:#f5f4ef;--card:#fff;--ink:#16181a;--muted:#555b60;--line:#c9c9c0;
+  --accent:#0b5d46;--accent-soft:#dff0e9;--danger:#a8201a;--danger-soft:#fbe6e4;
+  --warn:#ffc400;--warn-soft:#fff3c4;--zap:#075e54;
+  --app-h:100dvh;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink)}
+body{font:17px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden;touch-action:manipulation}
+#app{height:var(--app-h);max-width:560px;margin:0 auto;display:flex;flex-direction:column;background:var(--bg)}
+h1,h2,h3,p{margin:0}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.alerta-gravacao{background:var(--danger);color:#fff;padding:10px 16px;font-weight:700;font-size:15px}
+.topo{padding:10px 16px 8px;padding-top:max(10px,env(safe-area-inset-top));background:var(--card);border-bottom:1px solid var(--line)}
+.topo-linha{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:32px}
+.parte{font-size:14px;font-weight:700;color:var(--accent);overflow-wrap:anywhere}
+.etapa{font-size:14px;color:var(--muted);white-space:nowrap}
+.barra{height:8px;background:#e4e3db;border-radius:4px;margin-top:6px;overflow:hidden}
+.barra i{display:block;height:100%;background:var(--accent)}
+.link{background:none;border:0;padding:8px 0 8px 12px;color:var(--muted);text-decoration:underline;font-size:15px}
+.corpo{flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;padding:20px 16px 24px;-webkit-overflow-scrolling:touch}
+.rodape{display:flex;gap:10px;padding:10px 16px;padding-bottom:max(10px,env(safe-area-inset-bottom));background:var(--card);border-top:1px solid var(--line)}
+.rodape .btn{flex:1}.rodape .btn.voltar{flex:0 0 34%}
+.num{font-size:15px;font-weight:700;color:var(--muted);margin-bottom:6px}
+.pergunta{font-size:24px;line-height:1.2;font-weight:700;margin-bottom:14px;overflow-wrap:anywhere}
+.ajuda{font-size:15px;color:var(--muted);margin:-8px 0 14px}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;min-height:58px;padding:12px 16px;border-radius:12px;border:2px solid var(--ink);background:var(--card);font-weight:700;font-size:18px;text-align:center;text-decoration:none;color:var(--ink)}
+.btn.primario{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.zap{background:var(--zap);border-color:var(--zap);color:#fff}
+.btn.perigo{background:var(--card);border-color:var(--danger);color:var(--danger)}
+.btn.perigo-forte{background:var(--danger);border-color:var(--danger);color:#fff}
+.btn.apagado{background:#e4e3db;border-color:#e4e3db;color:#6c6f70}
+.btn:active{filter:brightness(.92)}
+.pilha{display:flex;flex-direction:column;gap:12px}
+.op{display:flex;align-items:center;gap:12px;width:100%;min-height:54px;padding:10px 14px;margin-bottom:8px;border:2px solid var(--line);border-radius:12px;background:var(--card);font-size:18px;font-weight:500;text-align:left;overflow-wrap:anywhere}
+.op::before{content:"";flex:none;width:24px;height:24px;border:2px solid var(--muted);border-radius:6px;background:var(--card)}
+.op.uma::before{border-radius:50%}
+.op[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);font-weight:700}
+.op[aria-pressed="true"]::before{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 4px var(--accent-soft)}
+.campo{display:block;margin:6px 0 14px}
+.campo>span{display:block;font-weight:700;margin-bottom:6px}
+.campo input,.campo textarea,.texto{display:block;width:100%;padding:13px 14px;border:2px solid var(--ink);border-radius:12px;background:var(--card);font-size:18px}
+textarea{resize:vertical;min-height:88px}
+textarea.grande{min-height:200px}
+input:focus,textarea:focus,.btn:focus-visible,.op:focus-visible{outline:3px solid var(--warn);outline-offset:1px}
+.aviso{padding:12px 14px;border-radius:12px;margin-bottom:14px;background:var(--warn-soft);border:2px solid #b38a00;font-weight:600}
+.aviso.erro{background:var(--danger-soft);border-color:var(--danger);color:#7c1612}
+.aviso .btn{margin-top:10px;min-height:50px;font-size:16px}
+.marca{font-size:29px;font-weight:800;line-height:1.1}
+.sub{color:var(--muted);margin:4px 0 20px}
+.status{font-size:14px;color:var(--muted);margin-top:18px;line-height:1.5}
+.titulo-tela{font-size:24px;font-weight:800;margin-bottom:14px;overflow-wrap:anywhere}
+.transicao{background:var(--warn);color:#000;display:flex;flex-direction:column;justify-content:center}
+.transicao h2{font-size:44px;line-height:1.08;font-weight:900;margin-bottom:22px;overflow-wrap:anywhere}
+.transicao p{font-size:27px;line-height:1.2;font-weight:700}
+.resumo h3{font-size:14px;letter-spacing:.04em;text-transform:uppercase;color:var(--accent);margin:18px 0 6px}
+.resumo dl{margin:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:2px 14px}
+.resumo dl>div{padding:9px 0;border-bottom:1px solid #e8e7df}
+.resumo dl>div:last-child{border-bottom:0}
+.resumo dt{font-size:14px;color:var(--muted)}
+.resumo dd{margin:1px 0 0;font-weight:600;overflow-wrap:anywhere;white-space:pre-wrap}
+.resumo dd.vazio{font-weight:400;color:var(--muted);font-style:italic}
+.item{display:block;width:100%;text-align:left;background:var(--card);border:2px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px}
+.item b{display:block;font-size:18px;overflow-wrap:anywhere}
+.item small{display:block;font-size:14px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere}
+.selo{display:inline-block;font-size:13px;font-weight:700;padding:1px 8px;border-radius:99px;background:var(--warn-soft);border:1px solid #b38a00;margin-top:6px}
+.acoes{display:flex;flex-direction:column;gap:12px;margin-top:20px}
+.toast{position:fixed;left:16px;right:16px;top:64px;max-width:528px;margin:0 auto;background:var(--ink);color:#fff;padding:13px 16px;border-radius:12px;font-weight:600;z-index:30}
+.fundo{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;padding:16px;z-index:20}
+.caixa{background:var(--card);border-radius:14px;padding:20px;width:100%;max-width:440px}
+.caixa h2{font-size:21px;margin-bottom:8px;overflow-wrap:anywhere}
+.caixa p{margin-bottom:18px;overflow-wrap:anywhere}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="camada"></div>
+<script>
+'use strict';
+
+/* ---------- Roteiro ---------- */
+const PARTES = {
+  id: 'Identificação',
+  antes: 'Parte 1: antes do vídeo',
+  transicao: 'Hora do vídeo',
+  depois: 'Parte 2: depois do vídeo'
+};
+const Q7_QUER = ['Sim, quero fechar agora', 'Quero receber uma proposta'];
+const Q7_NAO = ['Talvez mais para frente', 'Não'];
+const STEPS = [
+  { id: 'empresa', parte: 'id', tipo: 'texto', titulo: 'Empresa', rotulo: 'Empresa', obrig: true, cap: 'words' },
+  { id: 'ramo', parte: 'id', tipo: 'texto', titulo: 'Ramo', rotulo: 'Ramo', obrig: true, cap: 'sentences' },
+  { id: 'nome', parte: 'id', tipo: 'texto', titulo: 'Nome de quem respondeu', rotulo: 'Nome de quem respondeu', cap: 'words' },
+  { id: 'decide', parte: 'id', tipo: 'uma', auto: true, titulo: 'Essa pessoa decide sobre divulgação?', rotulo: 'Decide sobre divulgação?',
+    op: ['Sim', 'Não', 'Decide junto com outra pessoa'] },
+  { id: 'video', parte: 'id', tipo: 'uma', auto: true, titulo: 'Vídeo mostrado', rotulo: 'Vídeo mostrado',
+    op: ['Auto Peças Mirante', 'Casa Carvalho', 'Os dois'] },
+  { id: 'proprio', parte: 'id', tipo: 'uma', auto: true, titulo: 'O vídeo é da própria empresa?', rotulo: 'O vídeo é da própria empresa?',
+    op: ['Sim', 'Não'] },
+  { id: 'q1', parte: 'antes', n: 1, tipo: 'varias', titulo: 'Hoje, como os clientes novos chegam até vocês?', rotulo: 'Como os clientes novos chegam',
+    op: ['Indicação', 'Passam na porta', 'Instagram', 'WhatsApp', 'Google', 'Rádio ou carro de som', 'Patrocínio de eventos', 'Outro'] },
+  { id: 'q2', parte: 'antes', n: 2, tipo: 'uma', auto: true, titulo: 'Nos últimos 12 meses, quanto a empresa gastou por mês com divulgação, mais ou menos?', rotulo: 'Gasto mensal com divulgação',
+    op: ['Nada', 'Até R$ 300', 'R$ 300 a R$ 1.000', 'R$ 1.000 a R$ 3.000', 'Mais de R$ 3.000', 'Não quis dizer'] },
+  { id: 'q3', parte: 'antes', n: 3, tipo: 'varias', nota: true, titulo: 'O que mais pesa quando vocês pensam em divulgar a empresa?', rotulo: 'O que mais pesa ao divulgar',
+    op: ['Falta de tempo', 'Não sei se dá retorno', 'Não sei o que postar', 'Custa caro', 'Não tenho quem faça', 'Já foi feito e não funcionou', 'Não vejo necessidade', 'Outro'] },
+  { id: 'transicao', parte: 'transicao', tipo: 'transicao' },
+  { id: 'q4', parte: 'depois', n: 4, tipo: 'aberta', titulo: 'O que você achou?', rotulo: 'O que achou', ajuda: 'Anote as palavras exatas da pessoa.' },
+  { id: 'q5', parte: 'depois', n: 5, tipo: 'aberta', titulo: 'O que você mudaria nesse vídeo?', rotulo: 'O que mudaria no vídeo' },
+  { id: 'q6', parte: 'depois', n: 6, tipo: 'varias', exclusiva: 'Em lugar nenhum', titulo: 'Se esse vídeo fosse seu, onde você colocaria?', rotulo: 'Onde colocaria o vídeo',
+    op: ['Instagram', 'Status do WhatsApp', 'Tráfego pago', 'TV da loja', 'Em lugar nenhum', 'Outro'] },
+  { id: 'q7', parte: 'depois', n: 7, tipo: 'uma', rotulo: 'Faria um vídeo?', op: Q7_QUER.concat(Q7_NAO) }
+];
+const Q_TOTAL = 7;
+const FINAL = STEPS.length;
+
+/* ---------- Armazenamento (sempre protegido; se falhar, segura em memória e avisa) ---------- */
+const memoria = new Map();
+let gravando = true;
+
+function lerChave(k) {
+  if (memoria.has(k)) return memoria.get(k);
+  try {
+    return localStorage.getItem(k);
+  } catch (e) {
+    gravando = false;
+    return null;
+  }
+}
+function gravarChave(k, v) {
+  try {
+    localStorage.setItem(k, v);
+    memoria.delete(k);
+    gravando = true;
+  } catch (e) {
+    memoria.set(k, v);
+    gravando = false;
+  }
+  mostrarAlertaGravacao();
+}
+function apagarChave(k) {
+  memoria.delete(k);
+  try { localStorage.removeItem(k); } catch (e) { gravando = false; }
+}
+function chaves() {
+  const lista = new Set(memoria.keys());
+  try {
+    for (let i = 0; i < localStorage.length; i++) lista.add(localStorage.key(i));
+  } catch (e) { gravando = false; }
+  return Array.from(lista);
+}
+function lerJson(k) {
+  const v = lerChave(k);
+  if (v === null) return null;
+  try { return JSON.parse(v); } catch (e) { return null; }
+}
+
+const K_CFG = 'pe.config', K_ATUAL = 'pe.atual', K_ENT = 'pe.ent.';
+
+function cfg() { return Object.assign({ preco: null, exportadas: 0, exportadoEm: null }, lerJson(K_CFG) || {}); }
+function salvarCfg(c) { gravarChave(K_CFG, JSON.stringify(c)); }
+function salvar(iv) { gravarChave(K_ENT + iv.id, JSON.stringify(iv)); }
+function todas() {
+  return chaves().filter((k) => k && k.indexOf(K_ENT) === 0).map(lerJson)
+    .filter((e) => e && e.id && e.a)
+    .sort((x, y) => (x.criadaEm < y.criadaEm ? -1 : 1));
+}
+function concluidas() { return todas().filter((e) => e.status === 'completa'); }
+function apagar(iv) {
+  apagarChave(K_ENT + iv.id);
+  if (lerChave(K_ATUAL) === iv.id) apagarChave(K_ATUAL);
+}
+
+/* ---------- Formatação ---------- */
+function lerPreco(txt) {
+  let s = String(txt).replace(/[R$\s]/gi, '');
+  if (!s) return null;
+  if (s.indexOf(',') >= 0) s = s.replace(/\./g, '').replace(',', '.');
+  else if (/^\d{1,3}(\.\d{3})+$/.test(s)) s = s.replace(/\./g, '');
+  if (!/^\d+(\.\d{1,2})?$/.test(s)) return null;
+  const n = Number(s);
+  return n > 0 ? n : null;
+}
+function fmtPreco(n) {
+  return Number(n).toLocaleString('pt-BR', { minimumFractionDigits: Number.isInteger(Number(n)) ? 0 : 2, maximumFractionDigits: 2 });
+}
+function dois(n) { return String(n).padStart(2, '0'); }
+function fmtData(iso) {
+  const d = new Date(iso);
+  return dois(d.getDate()) + '/' + dois(d.getMonth() + 1) + '/' + d.getFullYear() + ' ' + dois(d.getHours()) + ':' + dois(d.getMinutes());
+}
+function valor(iv, s) {
+  const r = iv.a[s.id];
+  if (s.tipo === 'varias') {
+    const marcadas = Array.isArray(r) ? s.op.filter((o) => r.indexOf(o) >= 0) : [];
+    return marcadas.map((o) => {
+      const t = o === 'Outro' ? (iv.a[s.id + '_outro'] || '').trim() : '';
+      return t ? 'Outro: ' + t : o;
+    });
+  }
+  return r ? String(r).trim() : '';
+}
+function textoValor(iv, s, sep) {
+  const v = valor(iv, s);
+  return Array.isArray(v) ? v.join(sep) : v;
+}
+function q7Mudar(iv) { return Q7_NAO.indexOf(iv.a.q7) >= 0 ? (iv.a.q7_mudar || '').trim() : ''; }
+function q7Whats(iv) { return Q7_QUER.indexOf(iv.a.q7) >= 0 ? (iv.a.q7_whats || '').trim() : ''; }
+function passo(id) { return STEPS.find((s) => s.id === id); }
+
+function secoes(iv) {
+  const grupo = (parte) => STEPS.filter((s) => s.parte === parte);
+  const linha = (s) => [s.rotulo, textoValor(iv, s, ', ')];
+  const antes = [];
+  grupo('antes').forEach((s) => {
+    antes.push(linha(s));
+    if (s.nota) antes.push(['Nota', (iv.a[s.id + '_nota'] || '').trim()]);
+  });
+  const depois = grupo('depois').map(linha);
+  depois[3][0] = 'Faria um vídeo por R$ ' + fmtPreco(iv.preco) + '?';
+  if (Q7_NAO.indexOf(iv.a.q7) >= 0) depois.push(['O que precisaria mudar', q7Mudar(iv)]);
+  if (Q7_QUER.indexOf(iv.a.q7) >= 0) depois.push(['Melhor WhatsApp', q7Whats(iv)]);
+  return [
+    { titulo: 'Identificação', itens: [['Data e hora', fmtData(iv.criadaEm)]].concat(grupo('id').map(linha)) },
+    { titulo: 'Antes do vídeo', itens: antes },
+    { titulo: 'Depois do vídeo', itens: depois }
+  ];
+}
+function resumoTexto(iv, negrito) {
+  const b = (t) => (negrito ? '*' + t + '*' : t);
+  const out = [b('Pesquisa: ' + (iv.a.empresa || '(sem nome)').trim())];
+  if (iv.status !== 'completa') out.push('(entrevista incompleta)');
+  secoes(iv).forEach((sec) => {
+    out.push('', b(sec.titulo));
+    sec.itens.forEach(([r, v]) => out.push(r + ': ' + (v || '(em branco)')));
+  });
+  return out.join('\n');
+}
+function linkZap(iv) { return 'https://wa.me/?text=' + encodeURIComponent(resumoTexto(iv, true)); }
+
+/* ---------- Exportação ---------- */
+const COLUNAS = [
+  ['Status', (e) => (e.status === 'completa' ? 'Completa' : 'Incompleta')],
+  ['Data e hora', (e) => fmtData(e.criadaEm)],
+  ['Empresa', (e) => textoValor(e, passo('empresa'))],
+  ['Ramo', (e) => textoValor(e, passo('ramo'))],
+  ['Nome de quem respondeu', (e) => textoValor(e, passo('nome'))],
+  ['Decide sobre divulgação', (e) => textoValor(e, passo('decide'))],
+  ['Vídeo mostrado', (e) => textoValor(e, passo('video'))],
+  ['Vídeo é da própria empresa', (e) => textoValor(e, passo('proprio'))],
+  ['Preço apresentado (R$)', (e) => fmtPreco(e.preco)],
+  ['P1 Como os clientes novos chegam', (e) => textoValor(e, passo('q1'), ' | ')],
+  ['P2 Gasto mensal com divulgação', (e) => textoValor(e, passo('q2'))],
+  ['P3 O que mais pesa', (e) => textoValor(e, passo('q3'), ' | ')],
+  ['P3 Nota', (e) => e.a.q3_nota || ''],
+  ['P4 O que achou', (e) => textoValor(e, passo('q4'))],
+  ['P5 O que mudaria', (e) => textoValor(e, passo('q5'))],
+  ['P6 Onde colocaria', (e) => textoValor(e, passo('q6'), ' | ')],
+  ['P7 Faria um vídeo', (e) => textoValor(e, passo('q7'))],
+  ['P7 O que precisaria mudar', q7Mudar],
+  ['P7 Melhor WhatsApp', q7Whats]
+];
+function celula(v) {
+  let t = String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').trim();
+  if (/^[=+\-@]/.test(t)) t = "'" + t; // o Excel trataria como fórmula
+  return '"' + t.replace(/"/g, '""') + '"';
+}
+function gerarCsv() {
+  // Ponto e vírgula: é o separador que o Excel em português abre em colunas.
+  const linhas = [COLUNAS.map((c) => celula(c[0])).join(';')];
+  todas().forEach((e) => linhas.push(COLUNAS.map((c) => celula(c[1](e))).join(';')));
+  return '﻿' + linhas.join('\r\n') + '\r\n';
+}
+function textoTudo() {
+  return todas().map((e) => resumoTexto(e, false)).join('\n\n----------\n\n');
+}
+function marcarExportado() {
+  const c = cfg();
+  c.exportadas = concluidas().length;
+  c.exportadoEm = new Date().toISOString();
+  salvarCfg(c);
+}
+async function copiar(texto) {
+  try {
+    await navigator.clipboard.writeText(texto);
+    return true;
+  } catch (e) {
+    const t = document.createElement('textarea');
+    t.value = texto;
+    t.style.position = 'fixed';
+    t.style.opacity = '0';
+    document.body.appendChild(t);
+    t.select();
+    let ok = false;
+    try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+    t.remove();
+    return ok;
+  }
+}
+
+/* ---------- Interface ---------- */
+const $app = document.getElementById('app');
+const $camada = document.getElementById('camada');
+let tela = { nome: 'home' };
+let atual = null;
+let travaAte = 0;
+let timerAvanco = null;
+let timerToast = null;
+let avisouWhats = false;
+let offlinePronto = false;
+
+function el(tag, attrs, ...filhos) {
+  const n = document.createElement(tag);
+  Object.keys(attrs || {}).forEach((k) => {
+    const v = attrs[k];
+    if (k === 'class') n.className = v;
+    else if (k === 'value') n.value = v;
+    else if (k.indexOf('on') === 0) n.addEventListener(k.slice(2), v);
+    else if (v === true) n.setAttribute(k, '');
+    else if (v !== false && v != null) n.setAttribute(k, v);
+  });
+  filhos.flat(Infinity).forEach((f) => { if (f != null && f !== false) n.append(f); });
+  return n;
+}
+function botao(rotulo, classe, acao) { return el('button', { type: 'button', class: 'btn ' + classe, onclick: acao }, rotulo); }
+
+function limparToast() { document.querySelectorAll('.toast').forEach((t) => t.remove()); }
+function toast(msg) {
+  limparToast();
+  const t = el('div', { class: 'toast', role: 'status' }, msg);
+  document.body.append(t);
+  clearTimeout(timerToast);
+  timerToast = setTimeout(() => t.remove(), 3200);
+}
+function confirmar(titulo, texto, rotuloOk, aoConfirmar) {
+  const fechar = () => { $camada.textContent = ''; };
+  $camada.append(el('div', { class: 'fundo', role: 'dialog', 'aria-modal': 'true' },
+    el('div', { class: 'caixa' },
+      el('h2', {}, titulo),
+      el('p', {}, texto),
+      el('div', { class: 'pilha' },
+        botao('Cancelar', '', fechar),
+        botao(rotuloOk, 'perigo-forte', () => { fechar(); aoConfirmar(); })))));
+}
+function mostrarAlertaGravacao() {
+  const a = document.querySelector('.alerta-gravacao');
+  if (a) a.hidden = gravando;
+}
+function montar(...partes) {
+  limparToast();
+  $app.textContent = '';
+  $app.append(el('div', { class: 'alerta-gravacao', role: 'alert', hidden: gravando },
+    'Este navegador não está gravando as respostas. Não feche a página e exporte agora.'));
+  $app.append(...partes.filter(Boolean));
+}
+function topoSimples(titulo) {
+  return el('div', { class: 'topo' }, el('div', { class: 'topo-linha' }, el('span', { class: 'parte' }, titulo)));
+}
+function rodapeVoltar(acao) { return el('div', { class: 'rodape' }, botao('Voltar', '', acao)); }
+
+function ir(nova) {
+  tela = nova;
+  if (tela.nome !== 'home') protegerVoltar();
+  render();
+  const c = document.querySelector('.corpo');
+  if (c) c.scrollTop = 0;
+}
+function render() {
+  ({ home: telaHome, config: telaConfig, salvas: telaSalvas, detalhe: telaDetalhe, exportar: telaExportar, entrevista: telaEntrevista })[tela.nome]();
+}
+
+/* Botão Voltar do celular: vira o Voltar do app em vez de sair do site */
+let protegido = false;
+function protegerVoltar() {
+  if (protegido) return;
+  try { history.pushState({ pe: 1 }, ''); protegido = true; } catch (e) { /* segue sem proteção */ }
+}
+window.addEventListener('popstate', () => {
+  protegido = false;
+  if ($camada.firstChild) { $camada.textContent = ''; protegerVoltar(); return; }
+  if (tela.nome === 'home') return;
+  voltarGeral();
+  if (tela.nome !== 'home') protegerVoltar();
+});
+function voltarGeral() {
+  if (tela.nome === 'entrevista') voltar();
+  else if (tela.nome === 'detalhe') ir({ nome: 'salvas' });
+  else ir({ nome: 'home' });
+}
+
+/* ---------- Home ---------- */
+function telaHome() {
+  const c = cfg();
+  const lista = todas();
+  const prontas = lista.filter((e) => e.status === 'completa').length;
+  const abertas = lista.filter((e) => e.status !== 'completa').reverse();
+  const pendentes = prontas - c.exportadas;
+  montar(el('div', { class: 'corpo' },
+    el('h1', { class: 'marca' }, 'Pesquisa com empresas'),
+    el('p', { class: 'sub' }, 'Capelinha-MG'),
+    tela.semPreco && el('div', { class: 'aviso erro', role: 'alert' },
+      'Defina o preço do vídeo antes de iniciar a entrevista. Ele é usado na pergunta 7.',
+      botao('Definir preço', 'primario', () => ir({ nome: 'config' }))),
+    pendentes >= 5 && el('div', { class: 'aviso' },
+      pendentes + ' entrevistas ainda sem exportar. Exporte para não depender só do celular.',
+      botao('Exportar agora', '', () => ir({ nome: 'exportar' }))),
+    abertas.map((e) => el('button', { type: 'button', class: 'item', onclick: () => retomar(e) },
+      el('b', {}, 'Continuar: ' + (e.a.empresa || 'sem nome')),
+      el('small', {}, fmtData(e.criadaEm)),
+      el('span', { class: 'selo' }, 'Incompleta'))),
+    el('div', { class: 'pilha' },
+      botao('Nova entrevista', 'primario', novaEntrevista),
+      botao('Entrevistas salvas (' + lista.length + ')', '', () => ir({ nome: 'salvas' })),
+      botao('Exportar', '', () => ir({ nome: 'exportar' })),
+      botao('Configuração', '', () => ir({ nome: 'config' }))),
+    el('p', { class: 'status' },
+      'Preço do vídeo: ' + (c.preco ? 'definido' : 'não definido'),
+      el('br'),
+      c.exportadoEm ? 'Última exportação: ' + fmtData(c.exportadoEm) : 'Nenhuma exportação feita',
+      el('br'),
+      offlinePronto ? 'Pronto para abrir sem internet' : 'Modo sem internet ainda não ativado')));
+}
+
+/* ---------- Configuração ---------- */
+function telaConfig() {
+  const c = cfg();
+  const msg = el('div', { class: 'aviso erro', role: 'alert', hidden: true });
+  const guardar = () => {
+    const n = lerPreco(entrada.value);
+    if (!n) {
+      msg.textContent = 'Digite um preço válido, por exemplo 1.500 ou 1500,00.';
+      msg.hidden = false;
+      return;
+    }
+    const novo = cfg();
+    novo.preco = n;
+    salvarCfg(novo);
+    ir({ nome: 'home' });
+    toast('Preço salvo.');
+  };
+  const entrada = el('input', { id: 'preco', inputmode: 'decimal', autocomplete: 'off', placeholder: 'Ex.: 1.500', value: c.preco ? fmtPreco(c.preco) : '',
+    onkeydown: (e) => { if (e.key === 'Enter') guardar(); } });
+  montar(topoSimples('Configuração'), el('div', { class: 'corpo' },
+    msg,
+    el('label', { class: 'campo' }, el('span', {}, 'Preço do vídeo (R$)'), entrada),
+    el('p', { class: 'ajuda', style: 'margin:0 0 16px' }, 'Aparece na pergunta 7. Cada entrevista guarda o preço com que começou, mesmo que você mude depois.'),
+    botao('Salvar preço', 'primario', guardar)),
+    rodapeVoltar(() => ir({ nome: 'home' })));
+}
+
+/* ---------- Entrevista ---------- */
+function novaEntrevista() {
+  const c = cfg();
+  if (!c.preco) { ir({ nome: 'home', semPreco: true }); return; }
+  const agora = new Date().toISOString();
+  atual = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), criadaEm: agora, preco: c.preco, status: 'andamento', step: 0, a: {} };
+  salvar(atual);
+  gravarChave(K_ATUAL, atual.id);
+  // Pede ao navegador para não limpar os dados sozinho.
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (e) { /* opcional */ }
+  avisouWhats = false;
+  ir({ nome: 'entrevista' });
+}
+function retomar(iv) {
+  atual = iv;
+  gravarChave(K_ATUAL, iv.id);
+  avisouWhats = false;
+  ir({ nome: 'entrevista' });
+}
+function vazia(iv) {
+  return !Object.keys(iv.a).some((k) => {
+    const v = iv.a[k];
+    return Array.isArray(v) ? v.length : String(v == null ? '' : v).trim();
+  });
+}
+function sair() {
+  clearTimeout(timerAvanco);
+  timerAvanco = null;
+  if (atual && atual.status !== 'completa' && vazia(atual)) apagar(atual);
+  apagarChave(K_ATUAL);
+  atual = null;
+  ir({ nome: 'home' });
+}
+function travado() { return timerAvanco !== null || performance.now() < travaAte; }
+function irPasso(n) {
+  atual.step = n;
+  salvar(atual);
+  travaAte = performance.now() + 250; // um toque duplo não responde a próxima pergunta sem querer
+  avisouWhats = false;
+  render();
+  const c = document.querySelector('.corpo');
+  if (c) c.scrollTop = 0;
+}
+function voltar() {
+  clearTimeout(timerAvanco);
+  timerAvanco = null;
+  if (atual.step === 0) sair();
+  else irPasso(atual.step - 1);
+}
+function avancar() {
+  if (atual.step === FINAL - 1) concluir();
+  irPasso(atual.step + 1);
+}
+function concluir() {
+  if (atual.status === 'completa') return;
+  atual.status = 'completa';
+  atual.concluidaEm = new Date().toISOString();
+  salvar(atual);
+  const n = concluidas().length;
+  if (n % 5 === 0) atual.lembrarCom = n;
+}
+function respondido(s) {
+  const r = atual.a[s.id];
+  if (s.tipo === 'transicao') return true;
+  if (s.tipo === 'varias') return Array.isArray(r) && r.length > 0;
+  if (s.tipo === 'uma') return !!r;
+  if (s.obrig) return !!(r && r.trim());
+  return true;
+}
+function rotuloProxima(s) {
+  if (s.id === 'q7') return 'Concluir';
+  if ((s.tipo === 'texto' || s.tipo === 'aberta') && !s.obrig && !(atual.a[s.id] || '').trim()) return 'Deixar em branco';
+  return 'Próxima';
+}
+function atualizarProxima(s) {
+  const b = document.getElementById('proxima');
+  if (!b) return;
+  limparToast();
+  b.textContent = rotuloProxima(s);
+  b.classList.toggle('primario', respondido(s));
+  b.classList.toggle('apagado', !respondido(s));
+}
+function tocarProxima(s) {
+  if (travado()) return;
+  if (!respondido(s)) {
+    toast(s.tipo === 'texto' ? 'Preencha este campo para continuar.' : 'Escolha uma opção para continuar.');
+    return;
+  }
+  if (s.id === 'q7' && Q7_QUER.indexOf(atual.a.q7) >= 0 && !q7Whats(atual) && !avisouWhats) {
+    avisouWhats = true;
+    toast('Falta o WhatsApp. Toque de novo para concluir sem ele.');
+    return;
+  }
+  avancar();
+}
+function tocarOpcao(s, op) {
+  if (travado()) return;
+  let focar = false;
+  if (s.tipo === 'uma') {
+    atual.a[s.id] = op;
+  } else {
+    let r = Array.isArray(atual.a[s.id]) ? atual.a[s.id].slice() : [];
+    if (r.indexOf(op) >= 0) r = r.filter((o) => o !== op);
+    else {
+      if (op === s.exclusiva) r = [];
+      else r = r.filter((o) => o !== s.exclusiva);
+      r.push(op);
+      focar = op === 'Outro';
+    }
+    atual.a[s.id] = r;
+  }
+  salvar(atual);
+  const c = document.querySelector('.corpo');
+  const topo = c ? c.scrollTop : 0;
+  render();
+  const c2 = document.querySelector('.corpo');
+  if (c2) c2.scrollTop = topo;
+  if (s.id === 'q7' || focar) {
+    const alvo = document.getElementById(s.id === 'q7' ? 'q7-extra' : s.id + '-outro');
+    if (alvo) alvo.focus();
+  }
+  if (s.auto) {
+    timerAvanco = setTimeout(() => { timerAvanco = null; avancar(); }, 180);
+  }
+}
+function campoLivre(chave, attrs) {
+  const props = Object.assign({
+    autocomplete: 'off',
+    oninput: (e) => {
+      atual.a[chave] = e.target.value;
+      salvar(atual);
+      atualizarProxima(STEPS[atual.step]);
+    }
+  }, attrs);
+  props.value = atual.a[chave] || '';
+  return props;
+}
+function caixa(chave, attrs) {
+  return el('textarea', campoLivre(chave, Object.assign({ autocapitalize: 'sentences', spellcheck: 'true' }, attrs)));
+}
+function opcoes(s) {
+  const r = atual.a[s.id];
+  return s.op.map((o) => {
+    const marcada = s.tipo === 'uma' ? r === o : Array.isArray(r) && r.indexOf(o) >= 0;
+    const item = [el('button', { type: 'button', class: 'op ' + s.tipo, 'aria-pressed': String(marcada), onclick: () => tocarOpcao(s, o) }, o)];
+    if (o === 'Outro' && marcada) {
+      item.push(el('label', { class: 'campo' }, el('span', {}, 'Qual?'), caixa(s.id + '_outro', { id: s.id + '-outro', rows: 2 })));
+    }
+    return item;
+  });
+}
+function telaEntrevista() {
+  if (!atual) { ir({ nome: 'home' }); return; }
+  if (atual.step >= FINAL) { telaFinal(); return; }
+  const s = STEPS[atual.step];
+  const topo = el('div', { class: 'topo' },
+    el('div', { class: 'topo-linha' },
+      el('span', { class: 'parte' }, PARTES[s.parte]),
+      el('span', { class: 'etapa' }, 'Etapa ' + (atual.step + 1) + ' de ' + FINAL,
+        el('button', { type: 'button', class: 'link', onclick: sair }, 'Sair'))),
+    el('div', { class: 'barra' }, el('i', { style: 'width:' + Math.round((atual.step + 1) / FINAL * 100) + '%' })));
+
+  if (s.tipo === 'transicao') {
+    montar(topo,
+      el('div', { class: 'corpo transicao' },
+        el('h2', {}, 'MOSTRE O VÍDEO AGORA.'),
+        el('p', {}, 'Não explique nada nem fale de preço.')),
+      el('div', { class: 'rodape' },
+        botao('Voltar', 'voltar', voltar),
+        botao('Já mostrei', 'primario', () => { if (!travado()) avancar(); })));
+    return;
+  }
+
+  const miolo = [];
+  if (s.n) miolo.push(el('p', { class: 'num' }, 'Pergunta ' + s.n + ' de ' + Q_TOTAL));
+  const titulo = s.id === 'q7' ? 'Um vídeo como esse custa R$ ' + fmtPreco(atual.preco) + '. Você faria um para a sua empresa?' : s.titulo;
+  miolo.push(el('h2', { class: 'pergunta', id: 'titulo' }, titulo));
+  if (s.tipo === 'varias') miolo.push(el('p', { class: 'ajuda' }, 'Pode marcar mais de uma.'));
+
+  if (s.tipo === 'texto') {
+    miolo.push(el('input', campoLivre(s.id, {
+      class: 'texto', id: 'resposta', 'aria-labelledby': 'titulo', type: 'text', autocapitalize: s.cap, enterkeyhint: 'next',
+      onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); tocarProxima(s); } }
+    })));
+    if (s.id === 'empresa') miolo.push(el('p', { class: 'ajuda', style: 'margin:10px 0 0' }, 'Data e hora registradas: ' + fmtData(atual.criadaEm)));
+  } else if (s.tipo === 'aberta') {
+    miolo.push(caixa(s.id, { class: 'texto grande', id: 'resposta', 'aria-labelledby': 'titulo' }));
+    if (s.ajuda) miolo.push(el('p', { class: 'ajuda', style: 'margin:10px 0 0;font-weight:600' }, s.ajuda));
+  } else {
+    miolo.push(opcoes(s));
+  }
+  if (s.nota) {
+    miolo.push(el('label', { class: 'campo' }, el('span', {}, 'Nota (opcional)'), caixa(s.id + '_nota', { rows: 3 })));
+  }
+  if (s.id === 'q7') {
+    if (Q7_NAO.indexOf(atual.a.q7) >= 0) {
+      miolo.push(el('label', { class: 'campo' }, el('span', {}, 'O que precisaria mudar para valer a pena?'),
+        caixa('q7_mudar', { id: 'q7-extra', rows: 4 })));
+    } else if (Q7_QUER.indexOf(atual.a.q7) >= 0) {
+      miolo.push(el('label', { class: 'campo' }, el('span', {}, 'Melhor WhatsApp para contato'),
+        el('input', campoLivre('q7_whats', { id: 'q7-extra', type: 'tel', inputmode: 'tel', placeholder: '(33) 9 0000-0000' }))));
+    }
+  }
+
+  montar(topo, el('div', { class: 'corpo' }, miolo), el('div', { class: 'rodape' },
+    botao('Voltar', 'voltar', voltar),
+    el('button', { type: 'button', id: 'proxima', class: 'btn', onclick: () => tocarProxima(s) }, rotuloProxima(s))));
+  atualizarProxima(s);
+  const r = document.getElementById('resposta');
+  if (r && s.tipo === 'texto' && !r.value) r.focus();
+}
+
+/* ---------- Resumo e tela final ---------- */
+function blocoResumo(iv) {
+  return el('div', { class: 'resumo' }, secoes(iv).map((sec) => [
+    el('h3', {}, sec.titulo),
+    el('dl', {}, sec.itens.map(([r, v]) => el('div', {},
+      el('dt', {}, r),
+      el('dd', { class: v ? '' : 'vazio' }, v || 'Em branco'))))
+  ]));
+}
+function botoesResumo(iv) {
+  const link = linkZap(iv);
+  return [
+    el('a', { class: 'btn zap', href: link, target: '_blank', rel: 'noopener', id: 'zap' }, 'Enviar resumo pelo WhatsApp'),
+    link.length > 6000 && el('p', { class: 'ajuda', style: 'margin:0' }, 'Resumo longo: se o WhatsApp não abrir, use Copiar resumo.'),
+    botao('Copiar resumo', '', async () => {
+      toast((await copiar(resumoTexto(iv, true))) ? 'Resumo copiado.' : 'Não consegui copiar neste navegador.');
+    })
+  ];
+}
+function telaFinal() {
+  const iv = atual;
+  const c = cfg();
+  const lembrar = iv.lembrarCom && (!c.exportadoEm || c.exportadoEm < iv.concluidaEm);
+  montar(
+    el('div', { class: 'topo' },
+      el('div', { class: 'topo-linha' },
+        el('span', { class: 'parte' }, 'Entrevista concluída'),
+        el('button', { type: 'button', class: 'link', onclick: sair }, 'Início')),
+      el('div', { class: 'barra' }, el('i', { style: 'width:100%' }))),
+    el('div', { class: 'corpo' },
+      lembrar && el('div', { class: 'aviso', role: 'alert' },
+        'Você chegou a ' + iv.lembrarCom + ' entrevistas. Hora de exportar.',
+        botao('Exportar agora', '', sairParaExportar)),
+      el('h2', { class: 'titulo-tela' }, iv.a.empresa || 'Resumo'),
+      el('div', { class: 'pilha' },
+        botoesResumo(iv),
+        botao('Nova entrevista', 'primario', () => { apagarChave(K_ATUAL); atual = null; novaEntrevista(); })),
+      blocoResumo(iv)),
+    el('div', { class: 'rodape' }, botao('Voltar e corrigir', '', voltar)));
+}
+function sairParaExportar() {
+  apagarChave(K_ATUAL);
+  atual = null;
+  ir({ nome: 'exportar' });
+}
+
+/* ---------- Entrevistas salvas ---------- */
+function telaSalvas() {
+  const lista = todas().reverse();
+  montar(topoSimples('Entrevistas salvas (' + lista.length + ')'),
+    el('div', { class: 'corpo' },
+      lista.length === 0 && el('p', {}, 'Nenhuma entrevista salva ainda.'),
+      lista.map((e) => el('button', { type: 'button', class: 'item', onclick: () => ir({ nome: 'detalhe', id: e.id }) },
+        el('b', {}, e.a.empresa || 'Sem nome'),
+        el('small', {}, [e.a.ramo, fmtData(e.criadaEm)].filter(Boolean).join(' · ')),
+        e.status === 'completa' ? el('small', {}, e.a.q7 || '') : el('span', { class: 'selo' }, 'Incompleta')))),
+    rodapeVoltar(() => ir({ nome: 'home' })));
+}
+function telaDetalhe() {
+  const iv = lerJson(K_ENT + tela.id);
+  if (!iv) { ir({ nome: 'salvas' }); return; }
+  montar(topoSimples(iv.status === 'completa' ? 'Entrevista' : 'Entrevista incompleta'),
+    el('div', { class: 'corpo' },
+      el('h2', { class: 'titulo-tela' }, iv.a.empresa || 'Sem nome'),
+      el('div', { class: 'pilha' },
+        iv.status !== 'completa' && botao('Continuar entrevista', 'primario', () => retomar(iv)),
+        botoesResumo(iv)),
+      blocoResumo(iv),
+      el('div', { class: 'acoes' }, botao('Apagar entrevista', 'perigo', () => {
+        confirmar('Apagar esta entrevista?', '"' + (iv.a.empresa || 'Sem nome') + '" será apagada deste celular e não poderá ser recuperada.', 'Apagar', () => {
+          apagar(iv);
+          ir({ nome: 'salvas' });
+          toast('Entrevista apagada.');
+        });
+      }))),
+    rodapeVoltar(() => ir({ nome: 'salvas' })));
+}
+
+/* ---------- Exportar ---------- */
+function telaExportar() {
+  const lista = todas();
+  const incompletas = lista.filter((e) => e.status !== 'completa').length;
+  const baixar = () => {
+    const d = new Date();
+    const nome = 'pesquisa-empresas-' + d.getFullYear() + '-' + dois(d.getMonth() + 1) + '-' + dois(d.getDate()) + '.csv';
+    const url = URL.createObjectURL(new Blob([gerarCsv()], { type: 'text/csv;charset=utf-8' }));
+    const a = el('a', { href: url, download: nome });
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    marcarExportado();
+    render();
+    toast('CSV gerado: ' + nome);
+  };
+  const copiarTudo = async () => {
+    const texto = textoTudo();
+    if (await copiar(texto)) {
+      marcarExportado();
+      render();
+      toast('Todas as entrevistas foram copiadas.');
+    } else {
+      render();
+      document.querySelector('.corpo').append(
+        el('p', { class: 'ajuda', style: 'margin:16px 0 8px' }, 'Não consegui copiar sozinho. Selecione o texto abaixo e copie:'),
+        el('textarea', { class: 'texto grande', readonly: true, id: 'texto-manual', value: texto }));
+    }
+  };
+  const c = cfg();
+  montar(topoSimples('Exportar'),
+    el('div', { class: 'corpo' },
+      lista.length === 0
+        ? el('p', {}, 'Nenhuma entrevista para exportar ainda.')
+        : el('div', { class: 'pilha' },
+          el('p', {}, lista.length + (lista.length === 1 ? ' entrevista' : ' entrevistas') + (incompletas ? ', sendo ' + incompletas + (incompletas === 1 ? ' incompleta' : ' incompletas') : '') + '.'),
+          botao('Baixar CSV', 'primario', baixar),
+          botao('Copiar tudo como texto', '', copiarTudo)),
+      el('p', { class: 'status' }, c.exportadoEm ? 'Última exportação: ' + fmtData(c.exportadoEm) : 'Nenhuma exportação feita')),
+    rodapeVoltar(() => ir({ nome: 'home' })));
+}
+
+/* ---------- Início ---------- */
+function ajustarAltura() {
+  const vv = window.visualViewport;
+  document.documentElement.style.setProperty('--app-h', (vv ? vv.height : window.innerHeight) + 'px');
+  window.scrollTo(0, 0);
+}
+if (window.visualViewport) window.visualViewport.addEventListener('resize', ajustarAltura);
+window.addEventListener('resize', ajustarAltura);
+document.addEventListener('focusin', (e) => {
+  if (/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) {
+    setTimeout(() => { try { e.target.scrollIntoView({ block: 'center' }); } catch (e2) { /* opcional */ } }, 250);
+  }
+});
+ajustarAltura();
+
+try {
+  localStorage.setItem('pe.teste', '1');
+  localStorage.removeItem('pe.teste');
+} catch (e) { gravando = false; }
+
+const idAtual = lerChave(K_ATUAL);
+const salva = idAtual ? lerJson(K_ENT + idAtual) : null;
+if (salva) {
+  atual = salva;
+  ir({ nome: 'entrevista' });
+} else {
+  render();
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.ready.then(() => {
+    offlinePronto = true;
+    if (tela.nome === 'home') render();
+  });
+}
+</script>
+</body>
+</html>
