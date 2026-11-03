@@ -634,7 +634,7 @@ function telaEntrevista() {
 
   const miolo = [];
   if (s.n) miolo.push(el('p', { class: 'num' }, 'Pergunta ' + s.n + ' de ' + Q_TOTAL));
-  const titulo = s.id === 'q7' ? 'Um vídeo como esse custa R$00a0' + fmtPreco(atual.preco) + '. Você faria um para a sua empresa?' : s.titulo;
+  const titulo = s.id === 'q7' ? 'Um vídeo como esse custa R$ ' + fmtPreco(atual.preco) + '. Você faria um para a sua empresa?' : s.titulo;
   miolo.push(el('h2', { class: 'pergunta', id: 'titulo' }, titulo));
   if (s.tipo === 'varias') miolo.push(el('p', { class: 'ajuda' }, 'Pode marcar mais de uma.'));
 
