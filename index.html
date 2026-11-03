@@ -101,28 +101,17 @@ const Q7_QUER = ['Sim, quero fechar agora', 'Quero receber uma proposta'];
 const Q7_NAO = ['Talvez mais para frente', 'Não'];
 const STEPS = [
   { id: 'empresa', parte: 'id', tipo: 'texto', titulo: 'Empresa', rotulo: 'Empresa', obrig: true, cap: 'words' },
-  { id: 'ramo', parte: 'id', tipo: 'texto', titulo: 'Ramo', rotulo: 'Ramo', obrig: true, cap: 'sentences' },
-  { id: 'nome', parte: 'id', tipo: 'texto', titulo: 'Nome de quem respondeu', rotulo: 'Nome de quem respondeu', cap: 'words' },
   { id: 'decide', parte: 'id', tipo: 'uma', auto: true, titulo: 'Essa pessoa decide sobre divulgação?', rotulo: 'Decide sobre divulgação?',
     op: ['Sim', 'Não', 'Decide junto com outra pessoa'] },
   { id: 'video', parte: 'id', tipo: 'uma', auto: true, titulo: 'Vídeo mostrado', rotulo: 'Vídeo mostrado',
     op: ['Auto Peças Mirante', 'Casa Carvalho', 'Os dois'] },
-  { id: 'proprio', parte: 'id', tipo: 'uma', auto: true, titulo: 'O vídeo é da própria empresa?', rotulo: 'O vídeo é da própria empresa?',
-    op: ['Sim', 'Não'] },
-  { id: 'q1', parte: 'antes', n: 1, tipo: 'varias', titulo: 'Hoje, como os clientes novos chegam até vocês?', rotulo: 'Como os clientes novos chegam',
-    op: ['Indicação', 'Passam na porta', 'Instagram', 'WhatsApp', 'Google', 'Rádio ou carro de som', 'Patrocínio de eventos', 'Outro'] },
-  { id: 'q2', parte: 'antes', n: 2, tipo: 'uma', auto: true, titulo: 'Nos últimos 12 meses, quanto a empresa gastou por mês com divulgação, mais ou menos?', rotulo: 'Gasto mensal com divulgação',
+  { id: 'q2', parte: 'antes', n: 1, tipo: 'uma', auto: true, titulo: 'Nos últimos 12 meses, quanto a empresa gastou por mês com divulgação, mais ou menos?', rotulo: 'Gasto mensal com divulgação',
     op: ['Nada', 'Até R$ 300', 'R$ 300 a R$ 1.000', 'R$ 1.000 a R$ 3.000', 'Mais de R$ 3.000', 'Não quis dizer'] },
-  { id: 'q3', parte: 'antes', n: 3, tipo: 'varias', nota: true, titulo: 'O que mais pesa quando vocês pensam em divulgar a empresa?', rotulo: 'O que mais pesa ao divulgar',
-    op: ['Falta de tempo', 'Não sei se dá retorno', 'Não sei o que postar', 'Custa caro', 'Não tenho quem faça', 'Já foi feito e não funcionou', 'Não vejo necessidade', 'Outro'] },
   { id: 'transicao', parte: 'transicao', tipo: 'transicao' },
-  { id: 'q4', parte: 'depois', n: 4, tipo: 'aberta', titulo: 'O que você achou?', rotulo: 'O que achou', ajuda: 'Anote as palavras exatas da pessoa.' },
-  { id: 'q5', parte: 'depois', n: 5, tipo: 'aberta', titulo: 'O que você mudaria nesse vídeo?', rotulo: 'O que mudaria no vídeo' },
-  { id: 'q6', parte: 'depois', n: 6, tipo: 'varias', exclusiva: 'Em lugar nenhum', titulo: 'Se esse vídeo fosse seu, onde você colocaria?', rotulo: 'Onde colocaria o vídeo',
-    op: ['Instagram', 'Status do WhatsApp', 'Tráfego pago', 'TV da loja', 'Em lugar nenhum', 'Outro'] },
-  { id: 'q7', parte: 'depois', n: 7, tipo: 'uma', rotulo: 'Faria um vídeo?', op: Q7_QUER.concat(Q7_NAO) }
+  { id: 'q4', parte: 'depois', n: 2, tipo: 'aberta', titulo: 'O que você achou?', rotulo: 'O que achou', ajuda: 'Anote as palavras exatas da pessoa.' },
+  { id: 'q7', parte: 'depois', n: 3, tipo: 'uma', rotulo: 'Faria um vídeo?', op: Q7_QUER.concat(Q7_NAO) }
 ];
-const Q_TOTAL = 7;
+const Q_TOTAL = 3;
 const FINAL = STEPS.length;
 
 /* ---------- Armazenamento (sempre protegido; se falhar, segura em memória e avisa) ---------- */
@@ -228,7 +217,7 @@ function secoes(iv) {
     if (s.nota) antes.push(['Nota', (iv.a[s.id + '_nota'] || '').trim()]);
   });
   const depois = grupo('depois').map(linha);
-  depois[3][0] = 'Faria um vídeo por R$ ' + fmtPreco(iv.preco) + '?';
+  depois[depois.length - 1][0] = 'Faria um vídeo por R$ ' + fmtPreco(iv.preco) + '?';
   if (Q7_NAO.indexOf(iv.a.q7) >= 0) depois.push(['O que precisaria mudar', q7Mudar(iv)]);
   if (Q7_QUER.indexOf(iv.a.q7) >= 0) depois.push(['Melhor WhatsApp', q7Whats(iv)]);
   return [
@@ -254,23 +243,25 @@ const COLUNAS = [
   ['Status', (e) => (e.status === 'completa' ? 'Completa' : 'Incompleta')],
   ['Data e hora', (e) => fmtData(e.criadaEm)],
   ['Empresa', (e) => textoValor(e, passo('empresa'))],
-  ['Ramo', (e) => textoValor(e, passo('ramo'))],
-  ['Nome de quem respondeu', (e) => textoValor(e, passo('nome'))],
   ['Decide sobre divulgação', (e) => textoValor(e, passo('decide'))],
   ['Vídeo mostrado', (e) => textoValor(e, passo('video'))],
-  ['Vídeo é da própria empresa', (e) => textoValor(e, passo('proprio'))],
   ['Preço apresentado (R$)', (e) => fmtPreco(e.preco)],
-  ['P1 Como os clientes novos chegam', (e) => textoValor(e, passo('q1'), ' | ')],
-  ['P2 Gasto mensal com divulgação', (e) => textoValor(e, passo('q2'))],
-  ['P3 O que mais pesa', (e) => textoValor(e, passo('q3'), ' | ')],
-  ['P3 Nota', (e) => e.a.q3_nota || ''],
-  ['P4 O que achou', (e) => textoValor(e, passo('q4'))],
-  ['P5 O que mudaria', (e) => textoValor(e, passo('q5'))],
-  ['P6 Onde colocaria', (e) => textoValor(e, passo('q6'), ' | ')],
-  ['P7 Faria um vídeo', (e) => textoValor(e, passo('q7'))],
-  ['P7 O que precisaria mudar', q7Mudar],
-  ['P7 Melhor WhatsApp', q7Whats]
+  ['P1 Gasto mensal com divulgação', (e) => textoValor(e, passo('q2'))],
+  ['P2 O que achou', (e) => textoValor(e, passo('q4'))],
+  ['P3 Faria um vídeo', (e) => textoValor(e, passo('q7'))],
+  ['P3 O que precisaria mudar', q7Mudar],
+  ['P3 Melhor WhatsApp', q7Whats]
 ];
+// Perguntas que saíram do roteiro: a coluna só aparece se alguma entrevista antiga tiver a resposta.
+const COLUNAS_ANTIGAS = [
+  ['Ramo', 'ramo'], ['Nome de quem respondeu', 'nome'], ['Vídeo é da própria empresa', 'proprio'],
+  ['Como os clientes novos chegam', 'q1'], ['O que mais pesa', 'q3'], ['Nota', 'q3_nota'],
+  ['O que mudaria', 'q5'], ['Onde colocaria', 'q6']
+].map(([titulo, chave]) => [titulo, (e) => {
+  const v = e.a[chave];
+  const t = Array.isArray(v) ? v.join(' | ') : (v || '');
+  return e.a[chave + '_outro'] ? t + ' | Outro: ' + e.a[chave + '_outro'] : t;
+}]);
 function celula(v) {
   let t = String(v == null ? '' : v).replace(/[\r\n]+/g, ' ').trim();
   if (/^[=+\-@]/.test(t)) t = "'" + t; // o Excel trataria como fórmula
@@ -278,8 +269,10 @@ function celula(v) {
 }
 function gerarCsv() {
   // Ponto e vírgula: é o separador que o Excel em português abre em colunas.
-  const linhas = [COLUNAS.map((c) => celula(c[0])).join(';')];
-  todas().forEach((e) => linhas.push(COLUNAS.map((c) => celula(c[1](e))).join(';')));
+  const lista = todas();
+  const colunas = COLUNAS.concat(COLUNAS_ANTIGAS.filter((c) => lista.some((e) => c[1](e))));
+  const linhas = [colunas.map((c) => celula(c[0])).join(';')];
+  lista.forEach((e) => linhas.push(colunas.map((c) => celula(c[1](e))).join(';')));
   return '﻿' + linhas.join('\r\n') + '\r\n';
 }
 function textoTudo() {
@@ -410,7 +403,7 @@ function telaHome() {
     el('h1', { class: 'marca' }, 'Pesquisa com empresas'),
     el('p', { class: 'sub' }, 'Capelinha-MG'),
     tela.semPreco && el('div', { class: 'aviso erro', role: 'alert' },
-      'Defina o preço do vídeo antes de iniciar a entrevista. Ele é usado na pergunta 7.',
+      'Defina o preço do vídeo antes de iniciar a entrevista. Ele é usado na última pergunta.',
       botao('Definir preço', 'primario', () => ir({ nome: 'config' }))),
     pendentes >= 5 && el('div', { class: 'aviso' },
       pendentes + ' entrevistas ainda sem exportar. Exporte para não depender só do celular.',
@@ -454,7 +447,7 @@ function telaConfig() {
   montar(topoSimples('Configuração'), el('div', { class: 'corpo' },
     msg,
     el('label', { class: 'campo' }, el('span', {}, 'Preço do vídeo (R$)'), entrada),
-    el('p', { class: 'ajuda', style: 'margin:0 0 16px' }, 'Aparece na pergunta 7. Cada entrevista guarda o preço com que começou, mesmo que você mude depois.'),
+    el('p', { class: 'ajuda', style: 'margin:0 0 16px' }, 'Aparece na última pergunta. Cada entrevista guarda o preço com que começou, mesmo que você mude depois.'),
     botao('Salvar preço', 'primario', guardar)),
     rodapeVoltar(() => ir({ nome: 'home' })));
 }
@@ -464,7 +457,7 @@ function novaEntrevista() {
   const c = cfg();
   if (!c.preco) { ir({ nome: 'home', semPreco: true }); return; }
   const agora = new Date().toISOString();
-  atual = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), criadaEm: agora, preco: c.preco, status: 'andamento', step: 0, a: {} };
+  atual = { id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7), criadaEm: agora, preco: c.preco, status: 'andamento', step: 0, v: 2, a: {} };
   salvar(atual);
   gravarChave(K_ATUAL, atual.id);
   // Pede ao navegador para não limpar os dados sozinho.
@@ -472,8 +465,16 @@ function novaEntrevista() {
   avisouWhats = false;
   ir({ nome: 'entrevista' });
 }
+// Entrevista do roteiro antigo: o número da etapa mudou, então recomeça do início com as respostas guardadas.
+function migrar(iv) {
+  if (iv.v === 2) return iv;
+  iv.v = 2;
+  iv.step = iv.status === 'completa' ? FINAL : 0;
+  salvar(iv);
+  return iv;
+}
 function retomar(iv) {
-  atual = iv;
+  atual = migrar(iv);
   gravarChave(K_ATUAL, iv.id);
   avisouWhats = false;
   ir({ nome: 'entrevista' });
@@ -815,7 +816,7 @@ try {
 const idAtual = lerChave(K_ATUAL);
 const salva = idAtual ? lerJson(K_ENT + idAtual) : null;
 if (salva) {
-  atual = salva;
+  atual = migrar(salva);
   ir({ nome: 'entrevista' });
 } else {
   render();
